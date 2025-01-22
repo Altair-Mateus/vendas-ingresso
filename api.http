@@ -1,0 +1,80 @@
+
+###
+# @name loginPartner1
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+    "email": "partner1@user.com",
+    "password": "secret" 
+}
+
+###
+@tokenPartner1 = {{loginPartner1.response.body.token}}
+
+###
+POST http://localhost:3000/partners/register
+Content-Type: application/json
+
+{
+    "name": "Partner 2",
+    "email": "partner1@user.com",
+    "password": "secret",
+    "company_name": "Company Name 1"
+}
+
+### Criação de evento pelo parceiro
+POST http://localhost:3000/partners/events
+Content-Type: application/json
+Authorization: Bearer {{tokenPartner1}}
+
+{
+    "name": "Evento test 1",
+    "description": "descrição do evento",
+    "date": "2025-01-01T00:00:00",
+    "location": "Rua 1, bairro 3"
+}
+
+### Listagem dos eventos do parceiros
+GET http://localhost:3000/partners/events
+Content-Type: application/json
+Authorization: Bearer {{tokenPartner1}}
+
+### Listagem de um evento do parceiros
+GET http://localhost:3000/partners/events/1
+Content-Type: application/json
+Authorization: Bearer {{tokenPartner1}}
+
+### Listagem dos eventos
+GET http://localhost:3000/events
+Content-Type: application/json
+
+### Listagem de um evento
+GET http://localhost:3000/events/1
+Content-Type: application/json
+
+###
+# @name loginCustomer1
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+    "email": "customer1@user.com",
+    "password": "secret" 
+}
+
+###
+@tokenCustomer1 = {{loginCustomer1.response.body.token}}
+
+
+###
+POST http://localhost:3000/customers/register
+Content-Type: application/json
+
+{
+    "name": "customer 1",
+    "email": "customer1@user.com",
+    "password": "secret",
+    "address": "address 1",
+    "phone": "132456789"
+}
