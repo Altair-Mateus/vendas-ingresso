@@ -17,7 +17,7 @@ partnerRoutes.post("/register", async (req, res) => {
     res.status(201).json(result);
 });
 
-partnerRoutes.post("/partners/events", async (req, res) => {
+partnerRoutes.post("/events", async (req, res) => {
     const { name, description, date, location } = req.body;
     const userId = req.user!.id;
     const partnerService = new PartnerService();
@@ -32,9 +32,9 @@ partnerRoutes.post("/partners/events", async (req, res) => {
     const result = await eventService.create({
         name, 
         description,
-        date,
+        date: new Date(date),
         location,
-        partnerId: partner.id
+        partner_id: partner.id
     });
 
         res.status(201).json(result);

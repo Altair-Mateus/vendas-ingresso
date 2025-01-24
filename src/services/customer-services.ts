@@ -1,37 +1,38 @@
-import bcrypt from "bcrypt";
-import * as mysql from "mysql2/promise";
-import { createConnection } from "../database";
+import { UserModel } from "../models/user-model";
+import { Database } from "../database";
+import { CustomerModel } from "../models/customer-model";
 
 
 export class CustomerService{
 
     async register(data: {name: string, email: string, password: string, address: string, phone: string}){
         const { name, email, password, address, phone}  = data;
-        const connection = await createConnection();
+        const connection = await Database.getInstance().getConnection();
+
         try {
-            const createdAt = new Date();
-            const hashPassword = bcrypt.hashSync(password, 10);
-
-            const [userResult] = await connection.execute<mysql.ResultSetHeader>(
-                "INSERT INTO users (name, email, password,  created_at) VALUES (?, ?, ?, ?)", [
-                name, email, hashPassword, createdAt
-            ]);
-
-            const userId = userResult.insertId;
-            const [costumerResult] = await connection.execute<mysql.ResultSetHeader>(
-                "INSERT INTO customers (user_id, address, phone, created_at) VALUES (?, ?, ?, ?)", [
-                userId, address, phone, createdAt
-            ] );
-
+            await connection.beginTransaction();
+            const user = await UserModel.create({
+                name,
+                email,
+                password,
+                },
+                {connection}
+            );
+            
+            const customer = await CustomerModel.create({user_id: user.id, address, phone}, {connection});
+            await connection.commit();
+            
             return{
-                id: costumerResult.insertId, 
-                userId, 
+                id: customer.id, 
+                name,
+                userId: user.id, 
                 address, 
                 phone, 
-                createdAt};
-            
-        } finally {
-        await connection.end();
-        }
+                created_at: customer.created_at
+            };
+        } catch (error) {
+            await connection.rollback(); 
+            throw error;       
+        }    
     }
 }
