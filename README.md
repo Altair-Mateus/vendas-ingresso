@@ -4,7 +4,8 @@ Este repositório contém um sistema para venda de ingressos desenvolvido durant
 
 ## Funcionalidades Principais
 
-- **Cadastro de Eventos:** Permite a criação de eventos com informações como nome, data, valor único, capacidade máxima e uma lista de ingressos vendidos.
+- **Cadastro de Eventos:** Permite a criação de eventos pelo parceiro com informações como nome, data, local.
+- **Consulta de Eventos:** Permite a consulta pública de eventos e a consulta através dos parceiros.
 - **Cadastro de Clientes e Parceiros:** Permite a criação dos parceiros e dos clientes, bem como o seu usuário com acesso a API usando tokens.
 - **Venda de Ingressos:** Função para vender um ou mais ingressos, com a funcionalidades da reserva do ingresso por ordem de compra, onde o banco de dados é responsável por garantir que um ingresso não seja comprado por mais de um cliente.
 
@@ -44,7 +45,14 @@ npm install
 ```
 npx nodemon
 ```
-- A aplicação estará disponível conforme configurado no código.
+
+- A aplicação estará disponível conforme configurado no código, para executar a aplicação em produção basta executar o comando abaixo do docker que o mesmo irá subir a aplicação:
+
+```
+docker compose up
+```
+
+Para realizar os testes use o arquivo `api.http` para testar a API através da extensão REST Client no VSCode, ou use aplicativos como Postman e Insomna. As requisições para realizar os testes devem ser na porta 3000 ou 8080 em produção.
 
 ---
 
