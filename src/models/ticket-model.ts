@@ -88,26 +88,39 @@ export class TicketModel {
     return rows.length ? new TicketModel(rows[0] as TicketModel) : null;
   }
 
-  static async findAll(filter?: {
-    where?: { event_id?: number; ids?: number[] };
-  }, options?: { connection?: PoolConnection }): Promise<TicketModel[]> {
+  static async findAll(
+    filter?: {
+      where?: { 
+        event_id?: number; 
+        ids?: number[] 
+      };
+    }, 
+    options?: { 
+      connection?: PoolConnection 
+    }): Promise<TicketModel[]> {
+
     const db = options?.connection ?? Database.getInstance();
     let query = "SELECT * FROM tickets";
     const params = [];
+
     if (filter && filter.where) {
       const where = [];
+
       if (filter.where.event_id) {
         where.push("event_id = ?");
         params.push(filter.where.event_id);
       }
+
       if (filter.where.ids) {
-        //using ? and params
         where.push(`id IN (${filter.where.ids.map(() => "?").join(", ")})`);
         params.push(...filter.where.ids);
       }
+
       query += ` WHERE ${where.join(" AND ")}`;
     }
+
     const [rows] = await db.execute<RowDataPacket[]>(query, params);
+
     return rows.map((row) => new TicketModel(row as TicketModel));
   }
 
@@ -117,6 +130,7 @@ export class TicketModel {
       "UPDATE tickets SET location = ?, event_id = ?, price = ?, status = ? WHERE id = ?",
       [this.location, this.event_id, this.price, this.status, this.id]
     );
+
     if (result.affectedRows === 0) {
       throw new Error("Ticket not found");
     }
@@ -128,6 +142,7 @@ export class TicketModel {
       "DELETE FROM tickets WHERE id = ?",
       [this.id]
     );
+    
     if (result.affectedRows === 0) {
       throw new Error("Ticket not found");
     }

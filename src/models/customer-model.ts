@@ -37,33 +37,29 @@ export class CustomerModel{
 
     static async findById(
         id: number,
-        options?: { user?: boolean}
-    ) : Promise<CustomerModel | null>{
-
+        options?: { user?: boolean }
+      ): Promise<CustomerModel | null> {
         const db = Database.getInstance();
-        let query =  "SELECT * FROM customers WHERE id = ?";
+        let query = "SELECT * FROM customers WHERE id = ?";
         if (options?.user) {
           query =
-            "SELECT c.*, users.id as user_id, users.name as user_name, users.email as user_email "+
-            " FROM customers c JOIN users ON c.user_id = users.id WHERE c.id = ?";
+            "SELECT c.*, users.id as user_id, users.name as user_name, users.email as user_email FROM customers c JOIN users ON c.user_id = users.id WHERE c.id = ?";
         }
-
         const [rows] = await db.execute<RowDataPacket[]>(query, [id]);
-
+    
         if (rows.length === 0) return null;
-
+    
         const customer = new CustomerModel(rows[0] as CustomerModel);
-
-        if(options?.user){
-            customer.user = new UserModel({
-                id: rows[0].id,
-                name: rows[0].name,
-                email: rows[0].email,
-            });
+    
+        if (options?.user) {
+          customer.user = new UserModel({
+            id: rows[0].user_id,
+            name: rows[0].user_name,
+            email: rows[0].user_email,
+          });
         }
-
+    
         return customer;
-
     }
 
     static async findAll(): Promise<CustomerModel[]>{
@@ -71,6 +67,34 @@ export class CustomerModel{
         const [rows] = await db.execute<RowDataPacket[]>("SELECT * FROM customers");
         return rows.map((row) => new CustomerModel(row as CustomerModel));
     }
+
+    static async findByUserId(
+        user_id: number,
+        options?: { user?: boolean }
+      ): Promise<CustomerModel | null> {
+        const db = Database.getInstance();
+        let query = "SELECT * FROM customers WHERE user_id = ?";
+        if (options?.user) {
+          query =
+            "SELECT c.*, users.id as user_id, users.name as user_name, users.email as user_email FROM customers c JOIN users ON c.user_id = users.id WHERE c.user_id = ?";
+        }
+        const [rows] = await db.execute<RowDataPacket[]>(query, [user_id]);
+    
+        if (rows.length === 0) return null;
+    
+        const customer = new CustomerModel(rows[0] as CustomerModel);
+    
+        if (options?.user) {
+          customer.user = new UserModel({
+            id: rows[0].user_id,
+            name: rows[0].user_name,
+            email: rows[0].user_email,
+          });
+        }
+    
+        return customer;
+    }
+    
 
     async update(): Promise<void>{
         const db = Database.getInstance();
@@ -96,6 +120,7 @@ export class CustomerModel{
     }
 
     fill(data: Partial<CustomerModel>): void{
+        if (data.id !== undefined) this.id = data.id; 
         if (data.user_id !== undefined) this.user_id = data.user_id;
         if (data.address !== undefined) this.address = data.address;
         if (data.phone !== undefined) this.phone = data.phone;

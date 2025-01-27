@@ -33,6 +33,12 @@ export class CustomerService{
         } catch (error) {
             await connection.rollback(); 
             throw error;       
-        }    
+        } finally {
+            await connection.release();
+        }   
+    }
+
+    async findByUserId(id: number): Promise<CustomerModel | null>{
+        return CustomerModel.findByUserId(id, {user: true});
     }
 }
